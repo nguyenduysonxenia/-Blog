@@ -11,10 +11,18 @@ const post = new Schema({
     type: String,
     require: true
   },
+  image:{
+    type: String,
+    default: null
+  },
   likes: [mongoose.Types.ObjectId],
   views: {
     type: Number,
     default: 0
+  },
+  deleted:{
+    type: Boolean,
+    default: false
   },
   comments: [mongoose.Types.ObjectId],
   actived: {
