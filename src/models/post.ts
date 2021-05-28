@@ -8,6 +8,10 @@ const post = new Schema(
       type: String,
       require: true,
     },
+    image: {
+      type: String,
+      default: null,
+    },
     content: {
       type: String,
       require: true,

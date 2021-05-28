@@ -31,4 +31,4 @@ const user = new Schema({
     timestamps:true
 });
 
-module.exports  = mongoose.model('User',user);
+export default mongoose.model('User',user);
