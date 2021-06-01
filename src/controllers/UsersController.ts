@@ -20,7 +20,6 @@ class UsersController{
           if(isVerify){
             var accessToken: string = jwt.sign({email: user._id}, (<string>process.env.SECRECT_KEY))
             res.header(accessToken,accessToken)
-            // res.status(200).json({status:'success',accessToken})
             responseToClient(res,StatusCode.CODE_SUCCESS,accessToken);
           }
           else{
