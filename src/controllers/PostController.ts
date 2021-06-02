@@ -5,7 +5,7 @@ import TypePost from "../services/postService";
 class PostController {
   getPostList = async (req: express.Request, res: express.Response) => {
     try {
-      let posts: TypePost = await Post.find({});
+      let posts: TypePost = await Post.find({ actived: true, deleted: false });
       if (!posts)
         return res.json({ status: "error", message: "Not found posts" });
       return res.json({
@@ -20,7 +20,9 @@ class PostController {
 
   findOnePost = async (req: express.Request, res: express.Response) => {
     try {
-      let post: TypePost = await Post.findById(req.params.id);
+      let post: TypePost = await Post.findById(req.params.id, {
+        deleted: false,
+      });
       if (!post)
         return res.json({ status: "error", message: "Not found post" });
       return res.json({
@@ -69,13 +71,20 @@ class PostController {
 
   deletePost = async (req: express.Request, res: express.Response) => {
     try {
-      let post = await Post.findByIdAndDelete(req.params.id);
-      if (!post)
+      let post = await Post.findById(req.params.id);
+      if (!post) {
         return res.json({ status: "error", message: "Not found post" });
-      return res.json({
-        status: "success",
-        message: "This post is deleted",
-      });
+      } else {
+        await Post.findOneAndUpdate(
+          { _id: post.id },
+          { $set: { deleted: true } },
+          { returnOriginal: false }
+        );
+        return res.json({
+          status: "success",
+          message: "This post is deleted",
+        });
+      }
     } catch (error) {
       res.json({ status: "error", message: error.message });
     }
