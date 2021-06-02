@@ -1,101 +1,93 @@
 import express from "express";
 import Post from "../models/post";
 import TypePost from "../services/postService";
-
+import * as StatusCode from "../constants/httpStatusCode";
+import responseToClient from "../comon/response";
+import { clear } from "console";
+const MES_NO_POSTS = "There are no posts yet";
+const MES_NOT_FOUND_POST = "Not found post";
+const MES_CREATE_FAILED = "New post creation failed";
+const MES_CREATE_SUCCES = "New post creation success";
+const MES_UPDATE_FAILED = "Updation post failed";
+const MES_DELETE_SUCCES = "Post deleted";
 class PostController {
   getPostList = async (req: express.Request, res: express.Response) => {
     try {
-      const posts: [TypePost] = await Post.find({ actived: true });
-      if (posts.length < 1)
-        return res
-          .status(204)
-          .json({ status: "error", message: "No post yet" });
-      return res.status(201).json({
-        status: "success",
-        message: "All post",
-        posts,
+      let posts: TypePost[] = await Post.find({
+        actived: true,
+        deleted: false,
       });
+      if (posts.length == 0)
+        return responseToClient(res, StatusCode.CODE_NOT_FOUND, MES_NO_POSTS);
+      return responseToClient(res, StatusCode.CODE_SUCCESS, posts);
     } catch (error: any) {
-      res
-        .status(500)
-        .json({ status: "error", message: "error failed to load data" });
+      responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   };
 
   findOnePost = async (req: express.Request, res: express.Response) => {
     try {
-      const post: TypePost = await Post.findById(req.params.id);
-      if (!post)
-        return res
-          .status(201)
-          .json({ status: "error", message: "Not found post" });
-      return res.status(201).json({
-        status: "success",
-        message: "post",
-        post,
+      let post: TypePost = await Post.findById(req.params.id, {
+        deleted: false,
       });
+      if (!post)
+        return responseToClient(
+          res,
+          StatusCode.CODE_NOT_FOUND,
+          MES_NOT_FOUND_POST
+        );
+      return responseToClient(res, StatusCode.CODE_SUCCESS, post);
     } catch (error: any) {
-      res.json({ status: "error", message: "error failed to load data" });
+      return responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   };
 
   createPost = async (req: express.Request, res: express.Response) => {
-    try {
-      const dataPostUpdate: TypePost = req.body;
-      const post = new Post(dataPostUpdate);
-      await post.save((error: any, result: any) => {
-        if (error) {
-          res
-            .status(501)
-            .json({ status: "error", message: "Post creation failed" });
-        } else {
-          return res.status(201).json({
-            status: "success",
-            message: "New post created",
-            result,
-          });
-        }
-      });
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ status: "error", message: "Can't create new posts" });
-    }
+    let data_post: TypePost = req.body;
+    let post = new Post(data_post);
+    await post.save((error: any, result: any) => {
+      if (error) {
+        responseToClient(res, StatusCode.CODE_ERROR, MES_CREATE_FAILED);
+      } else {
+        return responseToClient(
+          res,
+          StatusCode.CODE_SUCCESS,
+          MES_CREATE_SUCCES
+        );
+      }
+    });
   };
 
   updatePost = async (req: express.Request, res: express.Response) => {
     try {
-      const post: TypePost = await Post.findByIdAndUpdate(
+      let post: TypePost = await Post.findByIdAndUpdate(
         req.params.id,
         req.body,
         { new: true }
       );
       if (!post)
-        return res
-          .status(501)
-          .json({ status: "error", message: "Not found post" });
-      return res.status(201).json({
-        status: "success",
-        message: "New post updated!",
-      });
+        return responseToClient(
+          res,
+          StatusCode.CODE_NOT_FOUND,
+          MES_UPDATE_FAILED
+        );
+      return responseToClient(res, StatusCode.CODE_SUCCESS, post);
     } catch (error: any) {
-      res.status(500).json({ status: "error", message: "Can't update posts" });
+      responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   };
 
   deletePost = async (req: express.Request, res: express.Response) => {
     try {
-      const post = await Post.findByIdAndDelete(req.params.id);
-      if (!post)
-        return res
-          .status(501)
-          .json({ status: "error", message: "Not found post" });
-      return res.status(201).json({
-        status: "success",
-        message: "This post is deleted!",
-      });
-    } catch (error: any) {
-      res.status(500).json({ status: "error", message: "Can't delete posts" });
+      let post = await Post.findById(req.params.id);
+      await Post.findOneAndUpdate(
+        { _id: post.id },
+        { $set: { deleted: true } },
+        { returnOriginal: false }
+      );
+      return responseToClient(res, StatusCode.CODE_SUCCESS, MES_DELETE_SUCCES);
+    } catch (error) {
+      responseToClient(res, StatusCode.CODE_Exception, error.messsage);
     }
   };
 }
