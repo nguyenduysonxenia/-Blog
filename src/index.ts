@@ -12,7 +12,8 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname,'public')));
 connectDb();
-
+app.get('/',(req,res)=>res.send('hhhh'))
 router(app);
-const Port = process.env.SERVER_PORT ? process.env.SERVER_PORT : 3000;
+
+const Port = process.env.PORT ? process.env.PORT : 3000;
 app.listen(Port,()=>console.log('server runing'));
