@@ -2,8 +2,8 @@ import express from "express";
 import Post from "../models/post";
 import TypePost from "../services/postService";
 import * as StatusCode from "../constants/httpStatusCode";
+import mongoose from "mongoose"
 import responseToClient from "../comon/response";
-import { clear } from "console";
 const MES_NO_POSTS = "There are no posts yet";
 const MES_NOT_FOUND_POST = "Not found post";
 const MES_CREATE_FAILED = "New post creation failed";
@@ -90,6 +90,60 @@ class PostController {
       responseToClient(res, StatusCode.CODE_Exception, error.messsage);
     }
   };
+  search = async(req: express.Request, res: express.Response)=>{
+    const query: any = req.query.key;
+    console.log(query)
+    let posts = await Post.find({
+      title: new RegExp('^'+query+'$', 'i')
+    })
+    responseToClient(res, StatusCode.CODE_SUCCESS, posts);
+  }
+  like = async(req: express.Request, res: express.Response)=>{
+    try{
+      const idPost: string = req.params.id;
+      let post = await Post.findById(idPost);
+      let idCurrentUser = req.currentUser.id;
+      if(!post){
+        return responseToClient(res, StatusCode.CODE_NOT_FOUND, MES_NOT_FOUND_POST );
+      }
+      let isLiked = post.likes.findIndex((u: mongoose.Types.ObjectId)=>u.toString() == idCurrentUser.toString());
+      let result = null;
+      console.log(isLiked)
+      if(isLiked != -1){
+        result = await Post.findOneAndUpdate({_id: post._id},{
+          $pull:{
+            likes: mongoose.Types.ObjectId(idCurrentUser)
+          }
+        },{ new: true})
+      }
+      else{
+        result = await Post.findOneAndUpdate({_id: post._id},{
+          $push:{
+            likes: mongoose.Types.ObjectId(idCurrentUser)
+          }
+        },{ new: true})
+      }
+      return responseToClient(res, StatusCode.CODE_SUCCESS, result );
+    }catch(err){
+      responseToClient(res, StatusCode.CODE_Exception, err.message );
+    }
+  }
+  view = async(req: express.Request, res: express.Response)=>{
+    try{
+      const idPost: string = req.params.id;
+      let post = await Post.findById(idPost);
+      let countView = post.views;
+      if(!post){
+        return responseToClient(res, StatusCode.CODE_NOT_FOUND, MES_NOT_FOUND_POST );
+      }
+        let result = await Post.findOneAndUpdate({_id: post._id},{
+          views: countView + 1
+        },{ new: true})
+      return responseToClient(res, StatusCode.CODE_SUCCESS, result );
+    }catch(err){
+      responseToClient(res, StatusCode.CODE_Exception, err.message );
+    }
+  }
 }
 
 export default new PostController();
