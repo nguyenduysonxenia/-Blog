@@ -14,5 +14,5 @@ app.use(express.static(path.join(__dirname,'public')));
 connectDb();
 
 router(app);
-
-app.listen(process.env.SERVER_PORT,()=>console.log('server runing'));
+const Port = process.env.SERVER_PORT ? process.env.SERVER_PORT : 3000;
+app.listen(Port,()=>console.log('server runing'));
