@@ -6,4 +6,9 @@ declare global{
             currentUser: UserModel
         }
     }
+    namespace Express {
+        interface Response {
+            paginatedResults: Array
+        }
+    }
 }
