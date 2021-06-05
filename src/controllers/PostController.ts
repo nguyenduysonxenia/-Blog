@@ -43,35 +43,57 @@ class PostController {
   };
 
   createPost = async (req: express.Request, res: express.Response) => {
-    let data_post: TypePost = req.body;
-    let post = new Post(data_post);
-    await post.save((error: any, result: any) => {
-      if (error) {
-        responseToClient(res, StatusCode.CODE_ERROR, MES_CREATE_FAILED);
-      } else {
-        return responseToClient(
-          res,
-          StatusCode.CODE_SUCCESS,
-          MES_CREATE_SUCCES
-        );
-      }
-    });
+    try{
+      let image = req.file ? req.file : null;
+      let post = new Post({
+        title: req.body.title,
+        content: req.body.content,
+        image: image?.filename
+      });
+      await post.save((error: any, result: any) => {
+        if (error) {
+          responseToClient(res, StatusCode.CODE_ERROR, MES_CREATE_FAILED);
+        } else {
+          return responseToClient(
+            res,
+            StatusCode.CODE_SUCCESS,
+            MES_CREATE_SUCCES
+          );
+        }
+      });
+    }catch(error){
+      responseToClient(res, StatusCode.CODE_Exception, error.message);
+    }
   };
 
   updatePost = async (req: express.Request, res: express.Response) => {
     try {
-      let post: TypePost = await Post.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
-      if (!post)
-        return responseToClient(
-          res,
-          StatusCode.CODE_NOT_FOUND,
-          MES_UPDATE_FAILED
+      const image = req.file;
+      const title = req.body.title;
+      const content = req.body.content;
+      let post = await Post.findById(req.params.id);
+      if(post){
+        let result: TypePost = await Post.findByIdAndUpdate(
+          req.params.id,
+          {
+            title: title ? title : post.title,
+            content: content ? content : post.content,
+            image: image ? image.filename : post.image
+          },
+          { new: true }
         );
-      return responseToClient(res, StatusCode.CODE_SUCCESS, post);
+        if (!result)
+          return responseToClient(
+            res,
+            StatusCode.CODE_NOT_FOUND,
+            MES_UPDATE_FAILED
+          );
+        return responseToClient(res, StatusCode.CODE_SUCCESS, result);
+      }
+      else{
+        responseToClient(res, StatusCode.CODE_NOT_FOUND, MES_NOT_FOUND_POST);
+      }
+
     } catch (error: any) {
       responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
