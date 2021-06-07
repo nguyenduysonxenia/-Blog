@@ -4,6 +4,7 @@ import TypePost from "../services/postService";
 import * as StatusCode from "../constants/httpStatusCode";
 import mongoose from "mongoose"
 import responseToClient from "../comon/response";
+import User from '../models/user'
 const MES_NO_POSTS = "There are no posts yet";
 const MES_NOT_FOUND_POST = "Not found post";
 const MES_CREATE_FAILED = "New post creation failed";
@@ -23,13 +24,18 @@ class PostController {
     try {
       let post: TypePost = await Post.findById(req.params.id, {
         deleted: false,
-      });
+      }).lean();
       if (!post)
         return responseToClient(
           res,
           StatusCode.CODE_NOT_FOUND,
           MES_NOT_FOUND_POST
         );
+      const user = await User.findById(post.authors_id);
+      post.author = {
+        username: user.username,
+        image: user.avatar
+      }
       return responseToClient(res, StatusCode.CODE_SUCCESS, post);
     } catch (error: any) {
       return responseToClient(res, StatusCode.CODE_Exception, error.message);
