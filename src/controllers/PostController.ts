@@ -13,13 +13,8 @@ const MES_DELETE_SUCCES = "Post deleted";
 class PostController {
   getPostList = async (req: express.Request, res: express.Response) => {
     try {
-      let posts: TypePost[] = await Post.find({
-        actived: true,
-        deleted: false,
-      });
-      if (posts.length == 0)
-        return responseToClient(res, StatusCode.CODE_NOT_FOUND, MES_NO_POSTS);
-      return responseToClient(res, StatusCode.CODE_SUCCESS, posts);
+      const result = res.paginatedResults;
+      return responseToClient(res, StatusCode.CODE_SUCCESS, result);
     } catch (error: any) {
       responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
@@ -61,7 +56,7 @@ class PostController {
           );
         }
       });
-    }catch(error){
+    }catch(error: any){
       responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   };
@@ -108,7 +103,7 @@ class PostController {
         { returnOriginal: false }
       );
       return responseToClient(res, StatusCode.CODE_SUCCESS, MES_DELETE_SUCCES);
-    } catch (error) {
+    } catch (error: any) {
       responseToClient(res, StatusCode.CODE_Exception, error.messsage);
     }
   };
@@ -146,7 +141,7 @@ class PostController {
         },{ new: true})
       }
       return responseToClient(res, StatusCode.CODE_SUCCESS, result );
-    }catch(err){
+    }catch(err: any){
       responseToClient(res, StatusCode.CODE_Exception, err.message );
     }
   }
@@ -162,7 +157,7 @@ class PostController {
           views: countView + 1
         },{ new: true})
       return responseToClient(res, StatusCode.CODE_SUCCESS, result );
-    }catch(err){
+    }catch(err: any){
       responseToClient(res, StatusCode.CODE_Exception, err.message );
     }
   }

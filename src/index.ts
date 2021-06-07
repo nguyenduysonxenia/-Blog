@@ -15,5 +15,5 @@ connectDb();
 app.get('/',(req,res)=>res.send('hhhh'))
 router(app);
 
-const Port = process.env.PORT ? process.env.PORT : 3000;
+const Port = process.env.PORT ? process.env.PORT : 3001;
 app.listen(Port,()=>console.log('server runing'));

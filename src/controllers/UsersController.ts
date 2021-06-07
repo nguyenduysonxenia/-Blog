@@ -78,8 +78,8 @@ class UsersController{
         return responseToClient(res,StatusCode.CODE_SUCCESS,result);
       }
       return responseToClient(res,StatusCode.CODE_ERROR,MESSAGE_UPDATE_FAILURE);
-    }catch(err){
-      responseToClient(res,StatusCode.CODE_Exception,err.message);
+    }catch(error){
+      responseToClient(res,StatusCode.CODE_Exception,error.message);
     }
   }
   async updatePassword(req: express.Request, res: express.Response){

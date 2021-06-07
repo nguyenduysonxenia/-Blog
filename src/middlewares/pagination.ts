@@ -10,7 +10,7 @@ interface Result {
 export default (model: any)=>{
 
   return  async(req: express.Request, res: express.Response, next: express.NextFunction): Promise<any>=>{
-    const page: number = parseInt(req.query.page as string);
+    const page: number = parseInt(req.query.page as string) ;
     const limit: number = parseInt(req.query.limit as string);
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
@@ -33,10 +33,12 @@ export default (model: any)=>{
       }
     }
     try {
-      result.results = await model.find().limit(limit).skip(startIndex).exec()
+      result.results = await model.find({
+        deleted: false
+      }).limit(limit).skip(startIndex).exec()
       res.paginatedResults = result
       next()
-    } catch (e) {
+    } catch (e: any) {
       responseToClient(res, StatusCode.CODE_Exception,e.message)
     }
   }
