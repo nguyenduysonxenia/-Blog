@@ -108,9 +108,10 @@ class PostController {
   };
   search = async(req: express.Request, res: express.Response)=>{
     const query: any = req.query.key;
-    console.log(query)
-    let posts = await Post.find({
-      title: new RegExp('^'+query+'$', 'i')
+    let posts = await Post.findOne({
+      title: {
+        $regex: new RegExp(query)
+      }
     })
     responseToClient(res, StatusCode.CODE_SUCCESS, posts);
   }
