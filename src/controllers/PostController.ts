@@ -19,7 +19,6 @@ class PostController {
       responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   };
-
   findOnePost = async (req: express.Request, res: express.Response) => {
     try {
       let post: TypePost = await Post.findById(req.params.id, {
@@ -159,6 +158,22 @@ class PostController {
       return responseToClient(res, StatusCode.CODE_SUCCESS, result );
     }catch(err: any){
       responseToClient(res, StatusCode.CODE_Exception, err.message );
+    }
+  }
+  async getPostNew(req: express.Request, res: express.Response){
+    try {
+      const postNew = await Post.find({}).sort({createdAt: -1}).limit(4);
+      return responseToClient(res, StatusCode.CODE_SUCCESS, postNew);
+    } catch (error: any) {
+      responseToClient(res, StatusCode.CODE_Exception, error.message);
+    }
+  }
+  async getPostHot(req: express.Request, res: express.Response){
+    try {
+      const postHot = await Post.find({}).sort({views: -1}).limit(4);
+      return responseToClient(res, StatusCode.CODE_SUCCESS, postHot);
+    } catch (error: any) {
+      responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   }
 }
