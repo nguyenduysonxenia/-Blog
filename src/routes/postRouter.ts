@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/search',PostController.search);
 router.get("/:id", PostController.findOnePost);
 router.get('/new',PostController.getPostNew);
-router.get('/Hot',PostController.getPostHot);
+router.get('/hot',PostController.getPostHot);
 router.patch('/:id/like',PostController.like);
 router.patch('/:id/view',PostController.view);
 //authen
