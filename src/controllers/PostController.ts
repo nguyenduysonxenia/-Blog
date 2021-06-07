@@ -108,7 +108,7 @@ class PostController {
   };
   search = async(req: express.Request, res: express.Response)=>{
     const query: any = req.query.key;
-    let posts = await Post.findOne({
+    let posts = await Post.find({
       title: {
         $regex: new RegExp(query)
       }
