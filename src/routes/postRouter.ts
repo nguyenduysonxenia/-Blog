@@ -10,12 +10,12 @@ router.get('/new',PostController.getPostNew);
 router.get('/hot',PostController.getPostHot);
 router.get('/search',PostController.search);
 router.get("/:id", PostController.findOnePost);
-router.patch('/:id/like',PostController.like);
+router.patch('/:id/like',checkLogin,PostController.like);
 router.patch('/:id/view',PostController.view);
 //authen
-router.post("/", multer.single('image'),PostController.createPost);
-router.patch("/:id", multer.single('image'),PostController.updatePost);
-router.delete("/:id", PostController.deletePost);
+router.post("/", checkLogin,multer.single('image'),PostController.createPost);
+router.patch("/:id", checkLogin, multer.single('image'),PostController.updatePost);
+router.delete("/:id", checkLogin, PostController.deletePost);
 //
 router.get("/", pagination(Post),PostController.getPostList);
 

@@ -78,7 +78,7 @@ class UsersController{
         return responseToClient(res,StatusCode.CODE_SUCCESS,result);
       }
       return responseToClient(res,StatusCode.CODE_ERROR,MESSAGE_UPDATE_FAILURE);
-    }catch(error){
+    }catch(error: any){
       responseToClient(res,StatusCode.CODE_Exception,error.message);
     }
   }
@@ -125,7 +125,7 @@ class UsersController{
       if(result)
         return responseToClient(res,StatusCode.CODE_SUCCESS,MESSAGE_DELETED_USER_SUCCESS);
       return responseToClient(res,StatusCode.CODE_ERROR,MESSAGE_DELETED_USER_FAILURE);
-    }catch(err){
+    }catch(err: any){
       responseToClient(res,StatusCode.CODE_Exception,err.message);
     }
   }
@@ -135,6 +135,15 @@ class UsersController{
       username: new RegExp('^'+query.trim().toLowerCase().trim()+'$', 'i')
     })
     responseToClient(res,StatusCode.CODE_SUCCESS,users);
+  }
+  async getCurrentUser(req: express.Request, res: express.Response){
+    const idUser = req.currentUser.id;
+    let user = await User.findById(idUser);
+    return responseToClient(res,StatusCode.CODE_SUCCESS,{
+      id: user._id,
+      username: user.username,
+      avatar: user.avatar,
+    });
   }
 }
 
