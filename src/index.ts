@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname,'/public')));
 connectDb();
-app.get('/:name',(req,res)=>res.sendFile(path.join(__dirname,`/public/upload/${req.params.name}`)))
+app.get('/',(req,res)=>res.sendFile(path.join(__dirname,`/public/upload/1622904907440-codeimg.png`)))
 router(app);
 
 const Port = process.env.PORT ? process.env.PORT : 3001;
