@@ -10,7 +10,7 @@ dotenv.config();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
-app.use(express.static(path.join(__dirname,'/public')));
+app.use('/', express.static(path.join(__dirname,'/public')));
 connectDb();
 app.get('/',(req,res)=>res.send('hhhh'))
 router(app);
