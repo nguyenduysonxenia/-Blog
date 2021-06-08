@@ -10,9 +10,9 @@ dotenv.config();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
-app.use('/upload', express.static(path.join(__dirname,'/public')));
+app.use(express.static(path.join(__dirname,'/public')));
 connectDb();
-app.get('/',(req,res)=>res.send('hhhh'))
+app.get('/:name',(req,res)=>res.sendFile(path.join(__dirname,`/public/upload/${req.params.name}`)))
 router(app);
 
 const Port = process.env.PORT ? process.env.PORT : 3001;
