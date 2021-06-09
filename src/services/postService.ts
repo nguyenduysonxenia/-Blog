@@ -1,5 +1,5 @@
 export default interface TypePost {
-  authors_id: number | string;
+  authors_id: string;
   categories_id: number | string;
   title: string;
   content: string;
@@ -8,6 +8,7 @@ export default interface TypePost {
   comments?: [number];
   deleted?: boolean;
   actived?: boolean;
+  author:Object
   getPostList(): [TypePost];
   findOnePost(): TypePost;
   createPost(): TypePost;

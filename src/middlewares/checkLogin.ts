@@ -11,6 +11,6 @@ export default (req: express.Request, res: express.Response, next: NextFunction)
       req.currentUser = verified;
       next();
    }catch(err){
-      res.status(400).send('Invalid token');
+      res.status(403).send('Invalid token');
    }
 }

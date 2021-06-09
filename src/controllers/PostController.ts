@@ -4,6 +4,7 @@ import TypePost from "../services/postService";
 import * as StatusCode from "../constants/httpStatusCode";
 import mongoose from "mongoose"
 import responseToClient from "../comon/response";
+import User from '../models/user'
 const MES_NO_POSTS = "There are no posts yet";
 const MES_NOT_FOUND_POST = "Not found post";
 const MES_CREATE_FAILED = "New post creation failed";
@@ -13,29 +14,28 @@ const MES_DELETE_SUCCES = "Post deleted";
 class PostController {
   getPostList = async (req: express.Request, res: express.Response) => {
     try {
-      let posts: TypePost[] = await Post.find({
-        actived: true,
-        deleted: false,
-      });
-      if (posts.length == 0)
-        return responseToClient(res, StatusCode.CODE_NOT_FOUND, MES_NO_POSTS);
-      return responseToClient(res, StatusCode.CODE_SUCCESS, posts);
+      const result = res.paginatedResults;
+      return responseToClient(res, StatusCode.CODE_SUCCESS, result);
     } catch (error: any) {
       responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   };
-
   findOnePost = async (req: express.Request, res: express.Response) => {
     try {
       let post: TypePost = await Post.findById(req.params.id, {
         deleted: false,
-      });
+      }).lean();
       if (!post)
         return responseToClient(
           res,
           StatusCode.CODE_NOT_FOUND,
           MES_NOT_FOUND_POST
         );
+      const user = await User.findById(post.authors_id);
+      post.author = {
+        username: user.username,
+        image: user.avatar
+      }
       return responseToClient(res, StatusCode.CODE_SUCCESS, post);
     } catch (error: any) {
       return responseToClient(res, StatusCode.CODE_Exception, error.message);
@@ -61,7 +61,7 @@ class PostController {
           );
         }
       });
-    }catch(error){
+    }catch(error: any){
       responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   };
@@ -108,15 +108,16 @@ class PostController {
         { returnOriginal: false }
       );
       return responseToClient(res, StatusCode.CODE_SUCCESS, MES_DELETE_SUCCES);
-    } catch (error) {
+    } catch (error: any) {
       responseToClient(res, StatusCode.CODE_Exception, error.messsage);
     }
   };
   search = async(req: express.Request, res: express.Response)=>{
     const query: any = req.query.key;
-    console.log(query)
     let posts = await Post.find({
-      title: new RegExp('^'+query+'$', 'i')
+      title: {
+        $regex: new RegExp(query)
+      }
     })
     responseToClient(res, StatusCode.CODE_SUCCESS, posts);
   }
@@ -146,7 +147,7 @@ class PostController {
         },{ new: true})
       }
       return responseToClient(res, StatusCode.CODE_SUCCESS, result );
-    }catch(err){
+    }catch(err: any){
       responseToClient(res, StatusCode.CODE_Exception, err.message );
     }
   }
@@ -162,8 +163,24 @@ class PostController {
           views: countView + 1
         },{ new: true})
       return responseToClient(res, StatusCode.CODE_SUCCESS, result );
-    }catch(err){
+    }catch(err: any){
       responseToClient(res, StatusCode.CODE_Exception, err.message );
+    }
+  }
+  async getPostNew(req: express.Request, res: express.Response){
+    try {
+      const postNew = await Post.find({}).sort({createdAt: -1}).limit(4);
+      return responseToClient(res, StatusCode.CODE_SUCCESS, postNew);
+    } catch (error: any) {
+      responseToClient(res, StatusCode.CODE_Exception, error.message);
+    }
+  }
+  async getPostHot(req: express.Request, res: express.Response){
+    try {
+      const postHot = await Post.find({}).sort({views: -1}).limit(4);
+      return responseToClient(res, StatusCode.CODE_SUCCESS, postHot);
+    } catch (error: any) {
+      responseToClient(res, StatusCode.CODE_Exception, error.message);
     }
   }
 }

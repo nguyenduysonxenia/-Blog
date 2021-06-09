@@ -4,7 +4,7 @@ import validator from '../middlewares/validator';
 import multer from '../utils/multer';
 import checkLogin from '../middlewares/checkLogin'
 const router = express.Router();
-
+router.get('/getcurrentuser',checkLogin,UsersController.getCurrentUser)
 router.post('/signup',validator,UsersController.create);
 router.post('/signin',UsersController.index);
 router.patch('/:id/edit',checkLogin, multer.single('avatar'),UsersController.update);

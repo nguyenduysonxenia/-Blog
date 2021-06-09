@@ -84,7 +84,7 @@ class CommentsController {
       } else {
         responseToClient(res, StatusCode.CODE_ERROR, MESSAGE_NOT_FOUND_POST);
       }
-    } catch (err) {
+    } catch (err: any) {
       responseToClient(res, StatusCode.CODE_Exception, err.message);
     }
   }
@@ -122,7 +122,7 @@ class CommentsController {
           MESSAGE_NOT_FOUND_COMMENT
         );
       }
-    } catch (err) {
+    } catch (err: any) {
       responseToClient(res, StatusCode.CODE_Exception, err.message);
     }
   }
@@ -138,7 +138,7 @@ class CommentsController {
       else{
         return responseToClient(res, StatusCode.CODE_ERROR,MESSAGE_NOT_FOUND_COMMENT)
       }
-    } catch (err) {
+    } catch (err: any) {
       responseToClient(res, StatusCode.CODE_Exception, err.message);
     }
   }
